@@ -7,12 +7,17 @@ PADD (formerly Chronometer2) is a more expansive version of the original chronom
 ![PADD](https://jpmck.com/img/blog/padd.png)
 
 ## Setup PADD
-*More in-depth information about setting up PADD can be found in this repo’s [wiki](https://github.com/jpmck/PADD/wiki/Setup).*
+*More in-depth information about setting up PADD can be found in this repo’s [wiki](https://github.com/pi-hole/PADD/wiki/Setup).*
 
 - Get a copy of PADD by running:
 ```bash
 cd ~
-wget -N https://raw.githubusercontent.com/pi-hole/PADD/master/padd.sh
+wget -O padd.sh https://install.padd.sh
+```
+or
+```bash
+cd ~
+curl -sSL https://install.padd.sh -o padd.sh
 ```
 - Make PADD executable by running
 ```bash
@@ -37,13 +42,15 @@ cd ~ ; echo "if [ \"\$TERM\" == \"linux\" ] ; then\n  while :\n  do\n    ./padd.
 - Reboot your Pi-Hole by running `sudo reboot`. PADD should now run when your Pi-Hole has completed booting.
 
 ## Updating PADD
-- Just run
+- Just run the same commands you used to install
 ```bash
 cd ~
-wget -N https://raw.githubusercontent.com/pi-hole/PADD/master/padd.sh
+wget -O padd.sh https://install.padd.sh
+```
+```bash
+cd ~
+curl -sSL https://install.padd.sh -o padd.sh
 ```
 
-**Note: if you are already running Chronometer2 v1.3.1 or below, you’ll need to follow [these instructions](https://github.com/jpmck/PADD/wiki/Updating-from-Chronometer2)!**
-
 ## FAQ
-*Answers to frequently asked questions can be found in this repo’s [wiki](https://github.com/jpmck/PADD/wiki/FAQ).*
+*Answers to frequently asked questions can be found in this repo’s [wiki](https://github.com/pi-hole/PADD/wiki/FAQ).*
