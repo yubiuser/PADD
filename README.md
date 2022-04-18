@@ -52,5 +52,3 @@ cd ~
 curl -sSL https://install.padd.sh -o padd.sh
 ```
 
-## FAQ
-*Answers to frequently asked questions can be found in this repo’s [wiki](https://github.com/pi-hole/PADD/wiki/FAQ).*
