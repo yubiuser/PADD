@@ -479,6 +479,7 @@ GetPiholeInformation() {
     fi
   fi
 
+    echo "PID ${ftlPID}, DNS port ${ftl_dns_port}" >> "/tmp/PADD_debug.log"
 }
 
 GetVersionInformation() {
