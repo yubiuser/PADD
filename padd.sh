@@ -419,7 +419,7 @@ GetNetworkInformation() {
 
 GetPiholeInformation() {
   # Get FTL status
-  ftlPID=$(pidof pihole-FTL)
+  ftlPID=$(ps h -C pihole-FTL -o %p)
 
   # If FTL is not running, set all variables to "not running"
   if [ -z "${ftlPID}" ]; then
@@ -436,8 +436,8 @@ GetPiholeInformation() {
     ftl_heatmap=${green_text}
     ftl_check_box=${check_box_good}
     # Get FTL CPU and memory usage
-    ftl_cpu="$(ps -p "${ftlPID}" -o %cpu | tail -n1 | tr -d '[:space:]')"
-    ftl_mem_percentage="$(ps -p "${ftlPID}" -o %mem | tail -n1 | tr -d '[:space:]')"
+    ftl_cpu="$(ps h -C pihole-FTL -o %cpu | tr -d '[:space:]')"
+    ftl_mem_percentage="$(ps h -C pihole-FTL -o %mem | tr -d '[:space:]')"
   fi
 
   # Get Pi-hole (blocking) status
