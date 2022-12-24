@@ -417,7 +417,7 @@ GetNetworkInformation() {
 
 GetPiholeInformation() {
   # Get FTL status
-  ftlPID=$(pidof pihole-FTL)
+  ftlPID=$(ps h -C pihole-FTL -o %p)
 
   # If FTL is not running, set all variables to "not running"
   if [ -z "${ftlPID}" ]; then
