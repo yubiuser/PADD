@@ -23,4 +23,5 @@ jobs:
           BASE: ${{ github.base_ref }}
           HEAD: ${{ github.head_ref }}
           BASEHEAD: "BASE...HEAD"
+      - name: Echo
         run: echo "This PR is $COMMITS_BEHIND commits behind the target branch"
