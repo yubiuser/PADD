@@ -8,18 +8,26 @@ on:
     types: [synchronize]
 
 jobs:
-  main:
+  Behind_by:
     runs-on: ubuntu-latest
     steps:
-      - name: Check if PR is behind
+      - name: Check if PR is behind target branch
         run: |
-          commits_behind="$(gh api repos/$OWNER/$REPO/compare/$BASE...$HEAD --jq .behind_by)"
+          commits_behind="$(gh api repos/$REPO/compare/$BASE...$HEAD --jq .behind_by)"
           echo 'COMMITS_BEHIND='$commits_behind >> $GITHUB_ENV
+          echo "Branch $HEAD is $COMMITS_BEHIND commit(s) behind $BASE"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          OWNER: ${{ github.repository_owner }}
-          REPO: ${{ github.event.repository.name }}
+          REPO: ${{ github.repository }}
           BASE: ${{ github.base_ref }}
           HEAD: ${{ github.head_ref }}
-      - name: Echo
-        run: echo "This PR is $COMMITS_BEHIND commits behind the target branch"
+
+      - name: Add label and comment
+        if: env.COMMITS_BEHIND >0
+        run: |
+          gh -R $REPO pr comment $PR_NUMBER --body "This PR is out-of-date. Please update your branch"
+          gh -R $REPO pr edit $PR_NUMBER --add-label "out-of-date"
+        env:
+          PR_NUMBER: ${{ github.event.number }}
+          REPO: ${{ github.repository }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
