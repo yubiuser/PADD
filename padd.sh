@@ -419,7 +419,9 @@ GetNetworkInformation() {
 
 GetPiholeInformation() {
   # Get FTL status
-  ftlPID=$(ps h -C pihole-FTL -o %p)
+
+  # Get FTL's current PID
+  ftlPID="$(getFTLPID)"
 
   # If FTL is not running, set all variables to "not running"
   if [ -z "${ftlPID}" ]; then
@@ -436,8 +438,8 @@ GetPiholeInformation() {
     ftl_heatmap=${green_text}
     ftl_check_box=${check_box_good}
     # Get FTL CPU and memory usage
-    ftl_cpu="$(ps h -C pihole-FTL -o %cpu | tr -d '[:space:]')"
-    ftl_mem_percentage="$(ps h -C pihole-FTL -o %mem | tr -d '[:space:]')"
+    ftl_cpu="$(ps h -p "${ftlPID}" -o %cpu | tr -d '[:space:]')"
+    ftl_mem_percentage="$(ps h -p "${ftlPID}" -o %mem | tr -d '[:space:]')"
   fi
 
   # Get Pi-hole (blocking) status
@@ -1078,6 +1080,37 @@ getFTLAPIPort(){
     echo "${ftl_api_port}"
 
 }
+
+# returns FTL's PID based on the content of the pihole-FTL.pid file
+# honor PIDFILE setting in `pihole-FTL.conf`
+getFTLPID() {
+    local FTLCONFFILE="/etc/pihole/pihole-FTL.conf"
+    local DEFAULT_PID_FILE="/run/pihole-FTL.pid"
+    local FTL_PID_FILE
+    local FTL_PID
+
+    if [ -s "${FTLCONFFILE}" ]; then
+      # if PIDFILE is not set in pihole-FTL.conf, use the default path
+      FTL_PID_FILE="$({ grep '^PIDFILE=' "${FTLCONFFILE}" || echo "${DEFAULT_PID_FILE}"; } | cut -d'=' -f2-)"
+    else
+      # if there is no pihole-FTL.conf, use the default path
+      FTL_PID_FILE="${DEFAULT_PID_FILE}"
+    fi
+
+    if [ -s "${FTL_PID_FILE}" ]; then
+        # -s: FILE exists and has a size greater than zero
+        FTL_PID="$(cat "${FTL_PID_FILE}")"
+        # Exploit prevention: unset the variable if there is malicious content
+        # Verify that the value read from the file is numeric
+        expr "${FTL_PID}" : "[^[:digit:]]" > /dev/null && unset FTL_PID
+    fi
+
+    # If FTL is not running, or the PID file contains malicious stuff, substitute
+    # negative PID to signal this
+    FTL_PID=${FTL_PID:=-1}
+    echo  "${FTL_PID}"
+}
+
 
 moveYOffset(){
     # moves the cursor yOffset-times down
