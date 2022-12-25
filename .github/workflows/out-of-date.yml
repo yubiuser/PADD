@@ -1,6 +1,5 @@
 name: "Check if PR is out-of-date"
 on:
-  pull_request:
   # So that the `dirtyLabel` is removed if conflicts are resolve
   # We recommend `pull_request_target` so that github secrets are available.
   # In `pull_request` we wouldn't be able to change labels of fork PRs
@@ -10,24 +9,27 @@ on:
 jobs:
   Behind_by:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      REPO: ${{ github.repository }}
+      BASE: ${{ github.base_ref }}
+      HEAD: ${{ github.head_ref }}
+      PR_NUMBER: ${{ github.event.number }}
     steps:
       - name: Check if PR is behind target branch
         run: |
           commits_behind="$(gh api repos/$REPO/compare/$BASE...$HEAD --jq .behind_by)"
           echo 'COMMITS_BEHIND='$commits_behind >> $GITHUB_ENV
-          echo "Branch $HEAD is $COMMITS_BEHIND commit(s) behind $BASE"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPO: ${{ github.repository }}
-          BASE: ${{ github.base_ref }}
-          HEAD: ${{ github.head_ref }}
+          echo "Branch $HEAD is $commits_behind commit(s) behind $BASE"
 
       - name: Add label and comment
         if: env.COMMITS_BEHIND >0
         run: |
           gh -R $REPO pr comment $PR_NUMBER --body "This PR is out-of-date. Please update your branch"
           gh -R $REPO pr edit $PR_NUMBER --add-label "out-of-date"
-        env:
-          PR_NUMBER: ${{ github.event.number }}
-          REPO: ${{ github.repository }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Remove label and comment
+        if: env.COMMITS_BEHIND == 0 && contains(github.event.pull_request.labels.*.name, 'out-of-date')
+        run: |
+          gh -R $REPO pr comment $PR_NUMBER --body "PR is now up-to-date"
+          gh -R $REPO pr edit $PR_NUMBER --remove-label "out-of-date"
