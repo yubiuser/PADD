@@ -1,7 +1,5 @@
 name: "Check if PR is out-of-date"
 on:
-  # So that PRs touching the same files as the push are updated
-  push:
   # So that the `dirtyLabel` is removed if conflicts are resolve
   # We recommend `pull_request_target` so that github secrets are available.
   # In `pull_request` we wouldn't be able to change labels of fork PRs
@@ -14,7 +12,7 @@ jobs:
     steps:
       - name: Check if PR is behind
         run: |
-          commits_behind="$(gh api /repos/OWNER/REPO/compare/BASEHEAD --jq .behind_by)"
+          commits_behind="$(gh api repos/$OWNER/$REPO/compare/$BASE...$HEAD --jq .behind_by)"
           echo 'COMMITS_BEHIND='$commits_behind >> $GITHUB_ENV
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -22,5 +20,5 @@ jobs:
           REPO: ${{ github.event.repository.name }}
           BASE: ${{ github.base_ref }}
           HEAD: ${{ github.head_ref }}
-          BASEHEAD: "BASE...HEAD"
+      - name: Echo
         run: echo "This PR is $COMMITS_BEHIND commits behind the target branch"
